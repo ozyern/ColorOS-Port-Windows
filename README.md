@@ -1,8 +1,8 @@
 # ColorOS-Port-Windows
 
-Windows-first UI wrapper for ColorOS/OxygenOS porting workflows.
+Windows-first ColorOS/OxygenOS porting workspace with a built-in UI and bundled porting engine.
 
-This repository starts with a desktop-friendly web UI that launches your existing `port.sh` pipeline from Windows (Git Bash), shows live logs, supports dry-run previews, and lets you stop running jobs.
+This repository includes the web UI and the core shell-based porting pipeline (`port.sh`, helper scripts, tools, and device data) so you can run everything from this one folder.
 
 ## What You Get
 
@@ -11,11 +11,12 @@ This repository starts with a desktop-friendly web UI that launches your existin
 - Live log streaming and status tracking
 - Dry run mode to verify command construction
 - One-click launcher for Windows (`start_ui.bat`)
+- Bundled porting engine files (`port.sh`, `functions.sh`, `bin/`, `devices/`, `otatools/`)
 
-## Current Scope (MVP)
+## Current Scope
 
-- Uses your existing script flow instead of replacing it.
 - Executes `bash <script> <baserom> <portrom> [portrom2] [portparts]`.
+- Defaults target the local `port.sh` in this repo.
 - Best run path on Windows is Git for Windows (Git Bash) + Python 3.
 
 ## Project Layout
@@ -23,6 +24,12 @@ This repository starts with a desktop-friendly web UI that launches your existin
 ```
 ColorOS-Port-Windows/
 	app.py
+	port.sh
+	functions.sh
+	setup.sh
+	bin/
+	devices/
+	otatools/
 	requirements.txt
 	start_ui.bat
 	templates/
@@ -63,9 +70,10 @@ python app.py
 
 ## Notes
 
-- If your script or tools are not in this repo yet, set the workspace/script paths to where they are.
 - Dry run does not execute anything; it only validates and previews the command.
 - Live logs show stdout/stderr merged from the running process.
+- Keep `workspace` set to this repo root unless you intentionally run a different script.
+- Engine-specific documentation from the original shell project is available in `PORT_ENGINE_README.md`.
 
 ## Next Steps
 
