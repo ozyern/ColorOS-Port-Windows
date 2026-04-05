@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ColorOS Port Windows UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="orb orb-a" aria-hidden="true"></div>
+    <div class="orb orb-b" aria-hidden="true"></div>
+
+    <main class="app-shell">
+        <header class="hero reveal">
+            <p class="eyebrow">ColorOS-Port-Windows</p>
+            <h1>Port ROMs with a real Windows UI</h1>
+            <p class="subtitle">
+                Launch your existing port script from Git Bash, watch logs live, and stop jobs without wrestling with terminal-only workflows.
+            </p>
+        </header>
+
+        <p id="noticeBar" class="notice info reveal">Ready. Fill in paths and start a job.</p>
+
+        <section class="layout reveal">
+            <article class="panel form-panel">
+                <h2>Job Input</h2>
+                <form id="portForm" novalidate>
+                    <label for="baseRom">Base ROM zip/url</label>
+                    <input id="baseRom" name="baseRom" type="text" placeholder="C:/ROM/base.zip or https://..." required>
+
+                    <label for="portRom">Port ROM zip/url</label>
+                    <input id="portRom" name="portRom" type="text" placeholder="C:/ROM/port.zip or https://..." required>
+
+                    <label for="portRom2">Second source ROM (optional)</label>
+                    <input id="portRom2" name="portRom2" type="text" placeholder="Optional mixed-port source">
+
+                    <label for="portParts">Second source partitions (optional)</label>
+                    <input id="portParts" name="portParts" type="text" placeholder="my_stock my_region my_manifest my_product">
+
+                    <label for="workspace">Workspace path</label>
+                    <input id="workspace" name="workspace" type="text" value="{{ defaults.workspace }}" required>
+
+                    <label for="scriptPath">Script path</label>
+                    <input id="scriptPath" name="scriptPath" type="text" value="{{ defaults.scriptPath }}" required>
+
+                    <label for="bashPath">Bash command/path</label>
+                    <input id="bashPath" name="bashPath" type="text" value="{{ defaults.bashPath }}" required>
+
+                    <div class="button-row">
+                        <button id="startBtn" type="submit" class="btn btn-primary">Start Port Job</button>
+                        <button id="dryRunBtn" type="button" class="btn btn-ghost">Dry Run</button>
+                        <button id="stopBtn" type="button" class="btn btn-danger" disabled>Stop Job</button>
+                    </div>
+                </form>
+            </article>
+
+            <article class="panel monitor-panel">
+                <div class="status-head">
+                    <h2>Execution Monitor</h2>
+                    <span id="statusBadge" class="status idle">idle</span>
+                </div>
+
+                <dl class="meta-grid">
+                    <div>
+                        <dt>Job ID</dt>
+                        <dd id="jobIdValue">-</dd>
+                    </div>
+                    <div>
+                        <dt>Return Code</dt>
+                        <dd id="returnCodeValue">-</dd>
+                    </div>
+                    <div>
+                        <dt>Started</dt>
+                        <dd id="startedAtValue">-</dd>
+                    </div>
+                    <div>
+                        <dt>Finished</dt>
+                        <dd id="finishedAtValue">-</dd>
+                    </div>
+                </dl>
+
+                <label for="commandPreview">Command Preview</label>
+                <textarea id="commandPreview" rows="2" readonly></textarea>
+
+                <div class="log-head">
+                    <h3>Live Logs</h3>
+                    <button id="clearLogsBtn" type="button" class="btn btn-small">Clear View</button>
+                </div>
+                <pre id="logOutput" class="log-output">[log] Waiting for a job...</pre>
+            </article>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>
