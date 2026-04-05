@@ -6,7 +6,7 @@
     <title>ColorOS Port Windows UI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Righteous&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
@@ -16,9 +16,9 @@
     <main class="app-shell">
         <header class="hero reveal">
             <p class="eyebrow">ColorOS-Port-Windows</p>
-            <h1>Port ROMs with a real Windows UI</h1>
+            <h1>ReVork Port Console</h1>
             <p class="subtitle">
-                Launch the bundled port script from Git Bash, watch logs live, and stop jobs without wrestling with terminal-only workflows.
+                High-contrast command center for ColorOS/OxygenOS porting with native-like controls, live terminal output, and explicit Linux runtime mode.
             </p>
         </header>
 
@@ -46,7 +46,13 @@
                     <label for="scriptPath">Script path</label>
                     <input id="scriptPath" name="scriptPath" type="text" value="{{ defaults.scriptPath }}" required>
 
-                    <label for="bashPath">Bash command/path</label>
+                    <label for="runnerMode">Runtime mode</label>
+                    <select id="runnerMode" name="runnerMode">
+                        <option value="wsl" {% if defaults.runnerMode == "wsl" %}selected{% endif %}>wsl (real Linux in WSL)</option>
+                        <option value="bash" {% if defaults.runnerMode == "bash" %}selected{% endif %}>bash (Git Bash/MSYS)</option>
+                    </select>
+
+                    <label for="bashPath">Runner command/path</label>
                     <input id="bashPath" name="bashPath" type="text" value="{{ defaults.bashPath }}" required>
 
                     <div class="button-row">

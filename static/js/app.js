@@ -13,6 +13,7 @@ const els = {
     portParts: document.getElementById("portParts"),
     workspace: document.getElementById("workspace"),
     scriptPath: document.getElementById("scriptPath"),
+    runnerMode: document.getElementById("runnerMode"),
     bashPath: document.getElementById("bashPath"),
     startBtn: document.getElementById("startBtn"),
     dryRunBtn: document.getElementById("dryRunBtn"),
@@ -50,27 +51,39 @@ function getPayload() {
         portParts: els.portParts.value.trim(),
         workspace: els.workspace.value.trim(),
         scriptPath: els.scriptPath.value.trim(),
+        runnerMode: (els.runnerMode.value || "bash").trim(),
         bashPath: els.bashPath.value.trim(),
     };
 }
 
 function updateCommandPreview() {
     const p = getPayload();
-    const cmd = [
-        p.bashPath || "bash",
-        p.scriptPath || "port.sh",
-        p.baseRom || "<base-rom>",
-        p.portRom || "<port-rom>",
-    ];
+    const runnerMode = (p.runnerMode || "bash").toLowerCase();
+    const scriptArg = p.scriptPath || "port.sh";
+    const baseArg = p.baseRom || "<base-rom>";
+    const portArg = p.portRom || "<port-rom>";
+
+    const args = [scriptArg, baseArg, portArg];
 
     if (p.portRom2) {
-        cmd.push(p.portRom2);
+        args.push(p.portRom2);
     } else if (p.portParts) {
-        cmd.push("");
+        args.push("");
     }
 
     if (p.portParts) {
-        cmd.push(p.portParts);
+        args.push(p.portParts);
+    }
+
+    let cmd;
+    if (runnerMode === "wsl") {
+        const runnerCmd = p.bashPath || "wsl";
+        const workspaceArg = p.workspace || ".";
+        const shell = `cd ${quoteArg(workspaceArg)} && bash ${args.map(quoteArg).join(" ")}`;
+        cmd = [runnerCmd, "bash", "-lc", shell];
+    } else {
+        const runnerCmd = p.bashPath || "bash";
+        cmd = [runnerCmd, ...args];
     }
 
     els.commandPreview.value = cmd.map(quoteArg).join(" ");
@@ -252,6 +265,7 @@ for (const field of [
     els.portParts,
     els.workspace,
     els.scriptPath,
+    els.runnerMode,
     els.bashPath,
 ]) {
     field.addEventListener("input", updateCommandPreview);

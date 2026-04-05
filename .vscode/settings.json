@@ -1,0 +1,5 @@
+{
+    "files.exclude": {
+        ".revork_engine": true
+    }
+}

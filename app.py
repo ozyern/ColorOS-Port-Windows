@@ -1,31 +1,21 @@
 from __future__ import annotations
 
 import os
-import shlex
 import subprocess
 import threading
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from flask import Flask, jsonify, render_template, request
+
+from port_runtime import build_port_command, command_to_string, utc_now_iso
 
 app = Flask(__name__)
 
 jobs: dict[str, dict[str, Any]] = {}
 jobs_lock = threading.Lock()
 TERMINAL_STATUSES = {"completed", "failed", "stopped"}
-
-
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def command_to_string(command: list[str]) -> str:
-    if os.name == "nt":
-        return subprocess.list2cmdline(command)
-    return shlex.join(command)
 
 
 def append_log(job_id: str, line: str) -> None:
@@ -57,43 +47,6 @@ def make_job_payload(job: dict[str, Any], from_line: int = 0) -> dict[str, Any]:
         "nextFrom": from_line + len(delta_logs),
         "logCount": len(all_logs),
     }
-
-
-def build_port_command(payload: dict[str, Any]) -> tuple[list[str], Path]:
-    base_rom = (payload.get("baseRom") or "").strip()
-    port_rom = (payload.get("portRom") or "").strip()
-    port_rom2 = (payload.get("portRom2") or "").strip()
-    port_parts = (payload.get("portParts") or "").strip()
-
-    if not base_rom or not port_rom:
-        raise ValueError("baseRom and portRom are required.")
-
-    workspace_raw = (payload.get("workspace") or ".").strip()
-    workspace = Path(workspace_raw).expanduser().resolve()
-    if not workspace.exists():
-        raise ValueError(f"Workspace not found: {workspace}")
-
-    script_raw = (payload.get("scriptPath") or "port.sh").strip()
-    script_path = Path(script_raw)
-    if not script_path.is_absolute():
-        script_path = workspace / script_path
-    script_path = script_path.resolve()
-    if not script_path.exists():
-        raise ValueError(f"Script not found: {script_path}")
-
-    bash_path = (payload.get("bashPath") or "bash").strip()
-    command: list[str] = [bash_path, str(script_path), base_rom, port_rom]
-
-    if port_rom2:
-        command.append(port_rom2)
-    elif port_parts:
-        # Keep positional args aligned with port.sh usage.
-        command.append("")
-
-    if port_parts:
-        command.append(port_parts)
-
-    return command, workspace
 
 
 def run_job(job_id: str, command: list[str], cwd: Path) -> None:
@@ -180,10 +133,13 @@ def create_job(command: list[str], cwd: Path) -> dict[str, Any]:
 @app.get("/")
 def index() -> str:
     repo_root = Path(__file__).resolve().parent
+    engine_root = repo_root / ".revork_engine"
+    workspace_default = engine_root if engine_root.exists() else repo_root
     defaults = {
-        "workspace": str(repo_root),
+        "workspace": str(workspace_default),
         "scriptPath": "port.sh",
-        "bashPath": "bash",
+        "bashPath": "wsl",
+        "runnerMode": "wsl",
     }
     return render_template("index.html", defaults=defaults)
 
